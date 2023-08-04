@@ -7,6 +7,26 @@ const items: MenuItemType[] = [
     link: { href: '/dashboard' },
   },
   {
+    title: 'Profile',
+    icon: { name: 'person' },
+    link: { href: '/profile' },
+  },
+  {
+    title: 'Wallet',
+    icon: { name: 'award' },
+    link: { href: '/wallet' },
+  },
+  {
+    title: 'Rooms',
+    icon: { name: 'grid' },
+    link: { href: '/rooms' },
+  },
+  {
+    title: 'Journal',
+    icon: { name: 'file-text' },
+    link: { href: '/journal' },
+  },
+  {
     title: 'FEATURES',
     group: true,
   },
