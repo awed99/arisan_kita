@@ -28,7 +28,7 @@ class User extends BaseController
           "sender_name" => $dataPost['username'],
           "sender_email" => $dataPost['email'],
       ];
-        $resFlip = curlFlip('pwf/bill', $payloads, true);
+        $resFlip = curlFlip('pwf/bill', $payloads, getenv('MODE'));
         $dataPost['topup_link_id'] = $resFlip['link_id'];
         $dataPost['topup_link_url'] = $resFlip['link_url'];
 
@@ -193,6 +193,78 @@ class User extends BaseController
 
         $res["status"] 	= $data ? "000" : "001";
         $res["message"] 	= $data ? "Login successfull." : "Email or Password incorrect!";
+        $res["data"] = $data;
+
+        echo json_encode($res);
+    }
+
+    public function postGet_data()
+    {
+        $request = request();
+        $dataPost = $request->getPost();
+        $db = db_connect();
+        $id_user = cek_session_login();
+
+        $data = $db->table('users')->where('id_user', $id_user)->get()->getRow();
+
+        $banks = $db->table('bank_names')->select('LOWER(label) as value, bank_name as label')
+        ->orderBy('label', 'asc')
+        ->where('is_active ', '1')
+        ->get()->getResult();
+
+        $db->close();
+
+        $res["status"] 	= $data ? "000" : "001";
+        $res["message"] 	= $data ? "" : "Error DB!";
+        $res["data"] = $data;
+        $res['banks'] = $banks;
+
+        echo json_encode($res);
+    }
+
+    public function postUpdate()
+    {
+        $request = request();
+        $dataPost = $request->getPost();
+        $db = db_connect();
+        $id_user = cek_session_login();
+
+        if (isset($dataPost['password']) && strlen($dataPost['password']) > 0) {
+          $dataPost['password'] = hash('sha256', hash('sha256', $dataPost['password']));
+        }
+
+        $data = $db->table('users')->where('id_user', $id_user)->ignore()->update($dataPost);
+        $db->close();
+
+        $res["status"] 	= $data ? "000" : "001";
+        $res["message"] 	= $data ? "" : "Error DB!";
+        $res["data"] = $data;
+
+        echo json_encode($res);
+    }
+
+    public function postGet_bank_account()
+    {
+        $request = request();
+        $dataPost = $request->getPost();
+        $db = db_connect();
+        $id_user = cek_session_login();
+
+        $payloads = [
+          "account_number" => $dataPost['user_bank_account_number'],
+          "bank_code" => $dataPost['user_bank_name'],
+        ];
+        $resFlip = curlFlip('disbursement/bank-account-inquiry', $payloads, getenv('MODE'));
+        // print_r($resFlip);
+
+        $dataPost['user_bank_account_name'] = $resFlip['account_holder'];
+        $db->table('users')->where('id_user', $id_user)->ignore()->update($dataPost);
+        sleep(1);
+        $data = $db->table('users')->where('id_user', $id_user)->get()->getRow();
+        $db->close();
+
+        $res["status"] 	= ($resFlip['account_holder'] !== '') ? "000" : "001";
+        $res["message"] 	= ($resFlip['account_holder'] !== '') ? "Bank Account is Valid." : "Bank Account is not Valid!";
         $res["data"] = $data;
 
         echo json_encode($res);

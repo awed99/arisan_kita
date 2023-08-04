@@ -170,8 +170,8 @@
         // if ($server_output == "OK") { ... } else { ... }
     }
 
-    function curlFlip($_url, $postArray=false, $isSandBox=false) {
-        $url = $isSandBox ? 'https://bigflip.id/big_sandbox_api/v2/'.$_url : 'https://bigflip.id/api/v2/'.$_url;
+    function curlFlip($_url, $postArray=false, $mode='PRODUCTION') {
+        $url = $mode != 'PRODUCTION' ? 'https://bigflip.id/big_sandbox_api/v2/'.$_url : 'https://bigflip.id/api/v2/'.$_url;
 
         set_time_limit(15);
         ignore_user_abort(false);

@@ -66,8 +66,10 @@ const Header: React.FC<HeaderProps> = (props) => {
 
   useEffect(() => {
     if (
-      !Store.get('auth-user') || (Store.get('auth-user') &&
-      !CryptoJS.AES.decrypt(`${Store.get('auth-user')}`, `${process.env.NEXT_PUBLIC_SECRET_KEY}`).toString(CryptoJS.enc.Utf8))
+      (
+        !Store.get('auth-user') || (Store.get('auth-user') &&
+        !CryptoJS.AES.decrypt(`${Store.get('auth-user')}`, `${process.env.NEXT_PUBLIC_SECRET_KEY}`).toString(CryptoJS.enc.Utf8))
+      ) && router?.route !== '/dashboard'
     ) {
       window.location.href='/auth/login'
       return false
@@ -145,13 +147,13 @@ const Header: React.FC<HeaderProps> = (props) => {
                 />
               ),
             },
-            {
-              content: (
-                <Button size="Small" onClick={() => props.changeDir()}>
-                  {props.dir}
-                </Button>
-              ),
-            },
+            // {
+            //   content: (
+            //     <Button size="Small" onClick={() => props.changeDir()}>
+            //       {props.dir}
+            //     </Button>
+            //   ),
+            // },
           ]}
         />
         <Actions
@@ -184,7 +186,7 @@ const Header: React.FC<HeaderProps> = (props) => {
             // },
             {
               content: (
-                <ContextMenu
+                (Store.get('auth-user')) ? <ContextMenu
                   nextJs
                   style={{ cursor: 'pointer' }}
                   placement="bottom"
@@ -196,7 +198,9 @@ const Header: React.FC<HeaderProps> = (props) => {
                   Link={Link}
                 >
                   <User image="url('/icons/icon-72x72.png')" name="Ahmed Elywa" title="Manger" size="Medium" />
-                </ContextMenu>
+                </ContextMenu> : <Button status="Primary" onClick={() => router.push('/auth/login')} type="submit" shape="SemiRound">
+                  Login / Register
+                </Button>
               ),
             },
           ]}
